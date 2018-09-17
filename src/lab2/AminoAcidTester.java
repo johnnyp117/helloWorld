@@ -10,6 +10,7 @@ public class AminoAcidTester
 {
 	public static void main(String[] args) 
 	{	 
+// Variables for game
 	boolean timer = false;
 	int scoreVar, questVar;
 	scoreVar = questVar = 0;
@@ -20,11 +21,12 @@ public class AminoAcidTester
 			"aspartic acid", "cysteine","glutamine",  "glutamic acid",
 			"glycine" ,"histidine","isoleucine","leucine",  "lysine", "methionine", 
 			"phenylalanine", "proline","serine","threonine","tryptophan","tyrosine", "valine"};
+// Opening of game
 	System.out.println("Do you want to play a game?");
-	String aString = System.console().readLine().toUpperCase();
-		if( aString.equals("N"))
+	String inString = System.console().readLine().toUpperCase();
+		if( inString.equals("N"))
 		{
-			System.out.println("too bad");
+			System.out.println("too bad, dance puppet.");
 		}
 	long startTime = System.currentTimeMillis();
 // Start the actual game loop	
@@ -33,24 +35,24 @@ public class AminoAcidTester
 		questVar++;
 		int idx = new Random().nextInt(FULL_NAMES.length);
 		System.out.println("What is the 1 letter abbreviation for "+ FULL_NAMES[idx] +" >.<");
-		String bString = System.console().readLine().toUpperCase();
-			if( bString.equals(SHORT_NAMES[idx]))
+		String ansString = System.console().readLine().toUpperCase();
+			if( ansString.equals(SHORT_NAMES[idx]))
 			{
-			System.out.println("Ok, "+ bString +" was correct. Next...");
+			System.out.println("Ok, "+ ansString +" was correct. Next...");
 			scoreVar++;
 			}
 			else
 			{
-			System.out.println(bString+" was wrong :p.");
+			System.out.println(ansString+" was wrong :p. You needed "+SHORT_NAMES[idx]);
 			break;
 			}
 		timer = evalTime(startTime);
 	}
-// End actual game loop
+// End actual game loop, prints out results
 	System.out.println("Game over");
 	System.out.println("Your score is "+ scoreVar +" out of possible "+ questVar);
 	}
-	
+// Method to evaluate time
 	public static Boolean evalTime(long timeVar)
 	{
 		long startTime = System.currentTimeMillis();
