@@ -4,6 +4,7 @@ import java.util.Random;
 /**
  * @author johnn
  * Date : 16.9.18
+ * 
  * Base level requirement for lab2 quiz class
  */
 public class AminoAcidTester
