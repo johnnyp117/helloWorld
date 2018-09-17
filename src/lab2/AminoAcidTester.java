@@ -1,6 +1,6 @@
 package lab2;
 import java.util.Random;
-import java.io.Console;
+
 /**
  * @author johnn
  * Date : 16.9.18
