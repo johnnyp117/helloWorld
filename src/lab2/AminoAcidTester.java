@@ -1,6 +1,5 @@
 package lab2;
 import java.util.Random;
-
 /**
  * @author John Patterson
  * Date : 17.9.18
