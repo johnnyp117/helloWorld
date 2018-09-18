@@ -2,10 +2,10 @@ package lab2;
 import java.util.Random;
 
 /**
- * @author johnn
- * Date : 16.9.18
+ * @author John Patterson
+ * Date : 17.9.18
  * 
- * Some extra credit level requirement for lab2 quiz class
+ * Some extra credit level requirement for lab2 quiz class. Added full usable set of residues
  * EC: Pass length of quiz, in time mode will return worst residue at end
  */
 public class AminoAcidTester
