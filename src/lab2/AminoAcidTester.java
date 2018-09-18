@@ -20,28 +20,34 @@ public class AminoAcidTester
 	scoreVar = questVar = 0;
 	final String[] SHORT_NAMES = { "A","R", "N", "D", "C", "Q", "E", 
 			"G",  "H", "I", "L", "K", "M", "F", 
-			"P", "S", "T", "W", "Y", "V" };
+			"P", "S", "T", "W", "Y", "V", "U", "O", "X"};
 	final String[] FULL_NAMES = {"alanine","arginine", "asparagine", 
 			"aspartic acid", "cysteine","glutamine",  "glutamic acid",
 			"glycine" ,"histidine","isoleucine","leucine",  "lysine", "methionine", 
-			"phenylalanine", "proline","serine","threonine","tryptophan","tyrosine", "valine"};
+			"phenylalanine", "proline","serine","threonine","tryptophan","tyrosine", 
+			"valine","selenocysteine","pyrrolysine","unknown"};
 	int[] errorArray = new int[SHORT_NAMES.length]; 
 // Opening of game
-	System.out.println("You know why you're here. Do you want to play timed or survival?");
+	System.out.println("You know why you're here. Do you want to play (t)imed or (s)urvival?");
 	String inString = System.console().readLine();
-		if( inString.equals("timed"))
+		if( inString.equals("timed")||inString.equals("t"))
 		{
 			System.out.println("Enter seconds desired to play");
 			timerVar = System.console().readLine();
 			timerFlag = true;
 		}
-		else if ( inString.equals("survival"))
+		else if ( inString.equals("survival")||inString.equals("s"))
 		{
 			System.out.println("Get ready");
 			surviveFlag = true;
-			
+		}
+		else
+		{
+			System.out.println("Well looks like you didn't choose, so survival it is :D");
+			surviveFlag = true;
 		}
 	long startTime = System.currentTimeMillis();
+// 
 // Start the actual game loop with flag controls for versions	
 	while(gameEnd == false)
 	{
@@ -59,8 +65,13 @@ public class AminoAcidTester
 			System.out.println(ansString+" was wrong :p. You needed "+SHORT_NAMES[idx]);
 			gameEnd = true;
 			}
+			else if(ansString.equals("quit")||ansString.equals("i yield"))
+			{
+			break;
+			}
 			else
 			{
+			System.out.println("You needed "+SHORT_NAMES[idx]);
 			errorArray[idx]++;
 			}
 		if(timerFlag == true)
@@ -70,6 +81,7 @@ public class AminoAcidTester
 		}
 	}
 // End actual game loop, prints out results
+//
 	System.out.println("Game over");
 	if(timerFlag == true)
 	{
@@ -96,10 +108,10 @@ public class AminoAcidTester
 			return false;
 		}
 	}
+// Method to get index in int array of largest value
 	public static int getIndexOfLargest( int[] array )
 	{
 	  if ( array == null || array.length == 0 ) return -1; // null or empty
-
 	  int largest = 0;
 	  for ( int i = 1; i < array.length; i++ )
 	  {
@@ -107,5 +119,4 @@ public class AminoAcidTester
 	  }
 	  return largest; // position of the first largest found
 	}
-
 }
