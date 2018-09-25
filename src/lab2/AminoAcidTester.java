@@ -1,7 +1,7 @@
 package lab2;
 import java.util.Random;
 /**
- * @author John Patterson
+ * @author John Patterson 
  * Date : 17.9.18
  * 
  * Some extra credit level requirement for lab2 quiz class. Added full usable set of residues
