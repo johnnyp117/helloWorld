@@ -1,7 +1,6 @@
 package lab3;
 import java.io.*;
 import java.util.*;
-
 /**
  * @author John Patterson 
  * Date : 24.9.18
@@ -18,19 +17,18 @@ public class ReadFASTA
 	{
 		this.sequenceID  = new ArrayList<String>();
 		this.sequence  = new ArrayList<String>();
-		//System.out.println("Please enter the name of the FASTA file.");
-		//String inString = System.console().readLine();
 		System.out.println("Running FASTA file reader.");
-		String fullFilePath = System.getProperty("user.dir") + "\\src\\lab3\\FASTAinput";
+// name requires absolute file name
+		String fullFilePath = System.getProperty("user.dir") + "\\src\\lab3\\FASTAinput2.txt";
 		System.out.println(fullFilePath);
 		this.FASTAfile = new BufferedReader(new FileReader(new File(fullFilePath)));
 	}
-	
+
 	public static int countLetter(char ref, String seq) 
 	{
 		int refCount = 0;
 		char[] charSeq = seq.toCharArray();
-		for(int i=0;i <= charSeq.length;i++)
+		for(int i=0;i <= charSeq.length-1;i++)
 		{
 			if(charSeq[i] == ref)
 			{
@@ -44,12 +42,14 @@ public class ReadFASTA
 	{
 		String fullFilePath = System.getProperty("user.dir") + "\\src\\lab3";
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(fullFilePath+"\\output")));
-		writer.write("sequenceID\tnumA\tnumC\\tnumG\\tnumT\\tsequence\n");
-		for(int i =0;i <= foo.sequenceID.size();i++)
+		writer.write("sequenceID\tnumA\tnumC\tnumG\tnumT\tsequence\n");
+		for(int i =0;i <= foo.sequenceID.size()-1;i++)
 		{
-		writer.write(foo.sequenceID.get(i)+ countLetter('A',foo.sequence.get(i))+"\t"+ countLetter('C',foo.sequence.get(i))+"\t"
-		+ countLetter('T',foo.sequence.get(i))+"\t"+ countLetter('G',foo.sequence.get(i))+"\t"
-		+foo.sequence.get(i)+"\n");	
+		System.out.println(foo.sequenceID.get(i));
+		System.out.println(foo.sequence.get(i));
+		writer.write(foo.sequenceID.get(i) +"\t"+ countLetter('A',foo.sequence.get(i)) +"\t"+ 
+		countLetter('C',foo.sequence.get(i)) +"\t"+ countLetter('T',foo.sequence.get(i)) +"\t"+ 
+		countLetter('G',foo.sequence.get(i)) +"\t"+ foo.sequence.get(i) +"\n");	
 		}
 		writer.close();
 		System.out.println("It has been printed to "+fullFilePath);
@@ -59,35 +59,43 @@ public class ReadFASTA
 public static void main(String[] args) throws Exception
 {
 	ReadFASTA foo = new ReadFASTA();
-	for(String nextLine = foo.FASTAfile.readLine(); nextLine != null; 
-			nextLine = foo.FASTAfile.readLine())
+// used to logically concat. the strings between > containing lines.
+	int lineCount = 0;
+	String entireSequnce = new String();
+	for(String nextLine = foo.FASTAfile.readLine(); nextLine != null; nextLine = foo.FASTAfile.readLine())
 	{
+// Breaks nextLine into charArray; I go on to recompile this to a String
 		System.out.println(nextLine);
-		String[] tempLine = nextLine.split(">",2);
-		if( tempLine[0].equals('>'))
+		char[] tempLine = nextLine.toCharArray();
+// check for sequenceID or sequence line
+		if( tempLine[0] == '>')
 		{
-		foo.sequenceID.add(tempLine[1]);
+		foo.sequenceID.add(new String(tempLine, 1, tempLine.length-1));
 		System.out.println(tempLine[1]);
+			if(lineCount>0)
+			{
+				foo.sequence.add(entireSequnce);
+				lineCount = 0;
+			}	
 		}
 		else 
 		{
-		String entireSequnce = new String();
-		int lineCount = 0;
-		while(nextLine.split(">",2)[0] != ">")
-		{
 			if(lineCount == 0)
 			{
+			entireSequnce = null;
 			entireSequnce = nextLine;
+			lineCount++;
 			}
 			else
 			{
 			entireSequnce = entireSequnce+nextLine;
 			}
 		}
-		foo.sequenceID.add(entireSequnce);
-		}
 	}
-	foo.FASTAfile.close();	
+// bug found and squashed. 
+	foo.sequence.add(entireSequnce);
+	foo.FASTAfile.close();
+	System.out.println(foo.sequenceID);
 	FASTA2tsv(foo);
 }
 }
