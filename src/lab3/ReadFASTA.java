@@ -3,7 +3,7 @@ import java.io.*;
 import java.util.*;
 /**
  * @author John Patterson 
- * Date : 24.9.18
+ * Date : 25.9.18
  * 
  * Read in FASTA file, spit out tsv file.
  */
@@ -45,8 +45,6 @@ public class ReadFASTA
 		writer.write("sequenceID\tnumA\tnumC\tnumG\tnumT\tsequence\n");
 		for(int i =0;i <= foo.sequenceID.size()-1;i++)
 		{
-		System.out.println(foo.sequenceID.get(i));
-		System.out.println(foo.sequence.get(i));
 		writer.write(foo.sequenceID.get(i) +"\t"+ countLetter('A',foo.sequence.get(i)) +"\t"+ 
 		countLetter('C',foo.sequence.get(i)) +"\t"+ countLetter('T',foo.sequence.get(i)) +"\t"+ 
 		countLetter('G',foo.sequence.get(i)) +"\t"+ foo.sequence.get(i) +"\n");	
@@ -95,7 +93,6 @@ public static void main(String[] args) throws Exception
 // bug found and squashed. 
 	foo.sequence.add(entireSequnce);
 	foo.FASTAfile.close();
-	System.out.println(foo.sequenceID);
 	FASTA2tsv(foo);
 }
 }
