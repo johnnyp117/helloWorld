@@ -19,7 +19,7 @@ public class ReadFASTA
 		this.sequence  = new ArrayList<String>();
 		System.out.println("Running FASTA file reader.");
 // name requires absolute file name
-		String fullFilePath = System.getProperty("user.dir") + "\\src\\lab3\\FASTAinput2.txt";
+		String fullFilePath = System.getProperty("user.dir") + "\\src\\lab4\\FASTAinput.txt";
 		System.out.println(fullFilePath);
 		this.FASTAfile = new BufferedReader(new FileReader(new File(fullFilePath)));
 	}
@@ -40,7 +40,7 @@ public class ReadFASTA
 	
 	public static void FASTA2tsv(ReadFASTA foo) throws Exception
 	{
-		String fullFilePath = System.getProperty("user.dir") + "\\src\\lab3";
+		String fullFilePath = System.getProperty("user.dir") + "\\src\\lab4";
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(fullFilePath+"\\output")));
 		writer.write("sequenceID\tnumA\tnumC\tnumG\tnumT\tsequence\n");
 		for(int i =0;i <= foo.sequenceID.size()-1;i++)
