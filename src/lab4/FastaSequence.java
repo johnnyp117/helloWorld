@@ -127,7 +127,7 @@ public class FastaSequence
 				fs.getNucleotideRatio('C','G') + "\t"+ fs.getSequence() +"\n");	
 		}
 		writer.close();
-		System.out.println("It has been printed to "+fullFilePath);
+		System.out.println("Fasta data has been printed to "+fullFilePath);
 	}
 	
 	// returns the header of this sequence without the “>”
