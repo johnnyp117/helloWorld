@@ -1,15 +1,12 @@
 package lab5;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.*;
 /**
  * @author John Patterson 
- * Date : 12.10.18
+ * Date : 24.10.18
  * 
  * GUI to demo basic swing functionality
  * 
@@ -17,11 +14,11 @@ import java.io.FileWriter;
 public class TeleporterGUI extends JFrame
 {
 	private static final long serialVersionUID = 1L;
-	private JPanel panel = new JPanel(); // the panel is not visible in output
-	private JTextField tf = new JTextField(10); // accepts up to 10 characters
+	private JPanel panel = new JPanel(); 
+	private JTextField tf = new JTextField(20); // length up to 20 characters 
     private JTextArea ta = new JTextArea(); // Text Area at the Center
-    private JLabel imageLabel = new JLabel();
-
+    private JLabel imageLabel = new JLabel(); // Creates area for image
+// All GUI settings occur in this constructor
 	public TeleporterGUI(String stationName) throws Exception
 	{
 		super(stationName);
@@ -30,11 +27,11 @@ public class TeleporterGUI extends JFrame
         JMenuBar mb = new JMenuBar();
         JMenu m1 = new JMenu("FILE");
         JMenu m2 = new JMenu("Help");
-        m1.setFont(new Font("Microgramma", Font.BOLD,25));
+        m1.setFont(new Font("Microgramma", Font.BOLD,25)); // I have a 3kx2k screen and the basic font is absurd
         m2.setFont(new Font("Microgramma", Font.BOLD,25));
-        mb.add(m1);
-        mb.add(m2);
+        mb.add(m1); mb.add(m2);
         JMenuItem m11 = new JMenuItem("Open");
+        m11.addActionListener(new loadFromFile());
         JMenuItem m12 = new JMenuItem("Save as");
         m12.addActionListener(new saveToFile());
         m11.setFont(new Font("Microgramma", Font.BOLD,25));
@@ -53,12 +50,12 @@ public class TeleporterGUI extends JFrame
         tf.setFont(new Font("Microgramma", Font.BOLD,25));
         send.addActionListener(new StringActionListener());
         reset.addActionListener(new ResetActionListener());
-        panel.add(label); // Components Added using Flow Layout
+        panel.add(label); // Components Added to the JPanel, which is then set to the bottom of GUI
         panel.add(tf);
         panel.add(send);
         panel.add(reset);
         panel.setBorder(new LineBorder(Color.BLUE, 4));
-     // add the image label
+// add the image 
         String current = new java.io.File( "." ).getCanonicalPath() +"\\src\\lab5\\teleporting.gif";
         ImageIcon ii = new ImageIcon(current);
         imageLabel.setIcon(ii);
@@ -74,7 +71,6 @@ public class TeleporterGUI extends JFrame
 //Settings for pretty
         panel.setBackground(Color.BLACK);
         ta.setBackground(Color.BLACK);
-        setBackground(Color.BLACK);
         ta.setForeground(Color.green);
         label.setForeground(Color.green);  
         panel.setForeground(Color.green);
@@ -87,6 +83,7 @@ public class TeleporterGUI extends JFrame
     		System.out.println("Could not set look and feel");
     	}
 	}
+// method for the send button
 	private class StringActionListener implements ActionListener
     {
         @Override
@@ -102,6 +99,7 @@ public class TeleporterGUI extends JFrame
     	tf.setText("");
 		validate();
 	}
+// method for the reset button
 	private class ResetActionListener implements ActionListener
     {
         @Override
@@ -110,6 +108,7 @@ public class TeleporterGUI extends JFrame
         	ta.setText(""); 
 		}
     }
+// method for the menu save button
     private class saveToFile implements ActionListener
     {
     	@Override
@@ -118,6 +117,7 @@ public class TeleporterGUI extends JFrame
     		saveToFile();
     	}
     }
+// not entirely sure if it's safe to give helper method and class same name, but was easy
     public void saveToFile()
     {
     	JFileChooser jfc = new JFileChooser();
@@ -144,10 +144,40 @@ public class TeleporterGUI extends JFrame
     		JOptionPane.showMessageDialog(this, ex.getMessage(), "Could not write file", JOptionPane.ERROR_MESSAGE);
     	}
     }
+ // method for the menu open button
+    private class loadFromFile implements ActionListener
+    {
+    	@Override
+    	public void actionPerformed(ActionEvent arg0)
+    	{
+    		loadFromFile();
+    	}
+    }
+    public void loadFromFile()
+    {
+    	JFileChooser jfc = new JFileChooser();
+    	if(jfc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+    		return;
+    	if(jfc.getSelectedFile() == null)
+    		return;
+    	File chosenFile = jfc.getSelectedFile();
+    	try
+    	{
+    		BufferedReader reader = new BufferedReader(new FileReader(chosenFile));
+    		for(String nextLine = reader.readLine(); nextLine != null; nextLine = reader.readLine())
+    		{
+    			updateTextArea(nextLine);
+    		}
+    		reader.close();
+    	}
+    	catch(Exception ex)
+    	{
+    		ex.printStackTrace();
+    		JOptionPane.showMessageDialog(this, ex.getMessage(), "Could not read file", JOptionPane.ERROR_MESSAGE);
+    	}
+    }
     public static void main(String args[]) throws Exception
     {
         new TeleporterGUI("station1");
     }
-	
-
 }
