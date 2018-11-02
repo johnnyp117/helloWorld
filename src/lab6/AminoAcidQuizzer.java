@@ -23,34 +23,35 @@ public class AminoAcidQuizzer extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 	private JPanel panel = new JPanel(); 
-	private JTextField tf = new JTextField(20); // length up to 20 characters 
-    private JTextArea ta = new JTextArea(); // Text Area at the Center
-    private JLabel imageLabel = new JLabel(); // Creates area for image
+	private JTextField tf = new JTextField(20); 
+    private JTextArea ta = new JTextArea();
+//    private JLabel imageLabel = new JLabel(); // Creates area for image
+    private volatile static String lastTFinput;
+    private boolean inputInital;
+    private volatile boolean timer = false;
+    private volatile boolean inputGame = false;
+
 // All GUI settings occur in this constructor
     public AminoAcidQuizzer(String stationName) throws Exception
 	{
 		super(stationName);
-		System.out.println("beeb boot doop");
+		updateTextArea("beeb boot doop");
 //Creating the MenuBar and adding components
         JMenuBar mb = new JMenuBar();
         JMenu m1 = new JMenu("FILE");
         JMenu m2 = new JMenu("Help");
         m1.setFont(new Font("Microgramma", Font.BOLD,25)); 
         m2.setFont(new Font("Microgramma", Font.BOLD,25));
+        ta.setFont(new Font("Microgramma", Font.BOLD,25));
         mb.add(m1); mb.add(m2);
-        JMenuItem m11 = new JMenuItem("Open");
-//        m11.addActionListener(new loadFromFile());
         JMenuItem m12 = new JMenuItem("Save as");
         m12.addActionListener(new saveToFile());
-        m11.setFont(new Font("Microgramma", Font.BOLD,25));
         m12.setFont(new Font("Microgramma", Font.BOLD,25));
         JMenuItem m21 = new JMenuItem("No Help For You");
-        m1.add(m11);
-        m1.add(m12);
-        m2.add(m21);
+        m1.add(m12);m2.add(m21);
 //Button set up
     	JLabel label = new JLabel("Enter Command");
-        JButton send = new JButton("Send");
+        JButton send = new JButton("Enter");
         JButton reset = new JButton("Reset");
         label.setFont(new Font("Microgramma", Font.BOLD,25));
         send.setFont(new Font("Microgramma", Font.BOLD,25));
@@ -133,7 +134,10 @@ public class AminoAcidQuizzer extends JFrame
          @Override
  		public void actionPerformed(ActionEvent arg0)
  		{
+  			lastTFinput = tf.getText();
  			updateTextArea(tf.getText()); 
+ 			inputInital = true;
+ 			inputGame = true;
  		}
      }
  	public void updateTextArea(String input)
@@ -152,120 +156,121 @@ public class AminoAcidQuizzer extends JFrame
          	ta.setText(""); 
  		}
      }
-
+ // Method to get index in int array of largest value
+ 	public static int getIndexOfLargest( int[] array )
+ 	{
+ 	  if ( array == null || array.length == 0 ) return -1; // null or empty
+ 	  int largest = 0;
+ 	  for ( int i = 1; i < array.length; i++ )
+ 	  {
+ 	      if ( array[i] > array[largest] ) largest = i;
+ 	  }
+ 	  return largest; // position of the first largest found
+ 	}
     public static void main(String[] args) throws Exception
 	{	 
 // Variables for game
     // From the gui teleporter:  new TeleporterGUI("station1");	
-    new AminoAcidQuizzer("station1");
+    AminoAcidQuizzer gamePane = new AminoAcidQuizzer("Quiz");
     
 	boolean timer, gameEnd, timerFlag, surviveFlag; 
 	timer = gameEnd = timerFlag = surviveFlag = false;
 	int scoreVar, questVar;
-	String timerVar = null;
 	scoreVar = questVar = 0;
+	
 	final String[] SHORT_NAMES = { "A","R", "N", "D", "C", "Q", "E", 
 			"G",  "H", "I", "L", "K", "M", "F", 
 			"P", "S", "T", "W", "Y", "V", "U", "O", "X"};
-	final String[] FULL_NAMES = {"alanine","arginine", "asparagine", 
-			"aspartic acid", "cysteine","glutamine",  "glutamic acid",
-			"glycine" ,"histidine","isoleucine","leucine",  "lysine", "methionine", 
-			"phenylalanine", "proline","serine","threonine","tryptophan","tyrosine", 
+	final String[] FULL_NAMES = {"alanine","arginine","asparagine", 
+			"aspartic acid","cysteine","glutamine","glutamic acid",
+			"glycine","histidine","isoleucine","leucine","lysine","methionine", 
+			"phenylalanine","proline","serine","threonine","tryptophan","tyrosine", 
 			"valine","selenocysteine","pyrrolysine","unknown"};
 	int[] errorArray = new int[SHORT_NAMES.length]; 
 // Opening of game
-	System.out.println("You know why you're here. Do you want to play (t)imed or (s)urvival?");
-	String inString = System.console().readLine();
+	gamePane.updateTextArea("You know why you're here. Do you want to play (t)imed or (s)urvival?");
+	//System.out.println("You know why you're here. Do you want to play (t)imed or (s)urvival?");
+	System.out.println(gamePane.inputInital);
+	while(gamePane.inputInital == false)
+	{try {Thread.sleep(100);}catch(InterruptedException e) {}}
+	System.out.println(gamePane.inputInital);
+	String inString = lastTFinput;
 		if( inString.equals("timed")||inString.equals("t"))
 		{
-			System.out.println("Enter seconds desired to play");
-			timerVar = System.console().readLine();
+			gamePane.updateTextArea("30 seconds to play");
+//			timerVar = System.console().readLine();
 			timerFlag = true;
+			new Thread(gamePane.new TimerOrSomething()).start();
 		}
 		else if ( inString.equals("survival")||inString.equals("s"))
 		{
-			System.out.println("Get ready");
+			gamePane.updateTextArea("Get ready");
 			surviveFlag = true;
 		}
 		else
 		{
-			System.out.println("Well looks like you didn't choose, so survival it is :D");
+			gamePane.updateTextArea("Well looks like you didn't choose, so survival it is :D");
 			surviveFlag = true;
 		}
-	long startTime = System.currentTimeMillis();
-// 
 // Start the actual game loop with flag controls for versions	
+	gamePane.inputGame = false;
 	while(gameEnd == false)
 	{
-		questVar++;
+		questVar = questVar+1;
 		int idx = new Random().nextInt(FULL_NAMES.length);
-		System.out.println("What is the 1 letter abbreviation for "+ FULL_NAMES[idx] +" >.<");
-		String ansString = System.console().readLine().toUpperCase();
+		gamePane.updateTextArea("What is the 1 letter abbreviation for "+ FULL_NAMES[idx]);
+		while(gamePane.inputGame == false)
+		{try {Thread.sleep(100);}catch(InterruptedException e) {}}
+//		String ansString = System.console().readLine().toUpperCase();
+		String ansString = lastTFinput.toUpperCase();
+		System.out.println(ansString);
 			if( ansString.equals(SHORT_NAMES[idx]))
 			{
-			System.out.println("Ok, "+ ansString +" was correct. Next...");
+			gamePane.updateTextArea("Ok, "+ ansString +" was correct. Next...");
 			scoreVar++;
 			}
 			else if(surviveFlag == true)
 			{
-			System.out.println(ansString+" was wrong :p. You needed "+SHORT_NAMES[idx]);
+			gamePane.updateTextArea(ansString+" was wrong :p. You needed "+SHORT_NAMES[idx]);
 			gameEnd = true;
 			}
 			else if(ansString.equals("quit")||ansString.equals("i yield"))
 			{
 			break;
 			}
+			else if(timerFlag == true)
+			{
+			System.out.println(timer);
+			gameEnd = gamePane.timer;
+			}
 			else
 			{
-			System.out.println("You needed "+SHORT_NAMES[idx]);
+			gamePane.updateTextArea("You needed "+SHORT_NAMES[idx]);
 			errorArray[idx]++;
 			}
-		if(timerFlag == true)
-		{
-		timer = evalTime(startTime, timerVar);
-		gameEnd = timer;
-		}
+//		if(timerFlag == true)
+//		{
+//			if(timer ==true)
+//				{
+//				gameEnd = true;
+//				}
+//		}
+		gamePane.inputGame = false;
 	}
 // End actual game loop, prints out results
-//
-	System.out.println("Game over");
+	gamePane.updateTextArea("Game over");
 	if(timerFlag == true)
 	{
-	System.out.println(timerVar + " seconds is up knave!");
-	System.out.println("Your score is "+ scoreVar +" out of possible "+ questVar);
-	System.out.println("Your worst residue was "+ FULL_NAMES[getIndexOfLargest(errorArray)]);
+	gamePane.updateTextArea("30 seconds is up knave!");
+	gamePane.updateTextArea("Your score is "+ scoreVar +" out of possible "+ questVar);
+	gamePane.updateTextArea("Your worst residue was "+ FULL_NAMES[getIndexOfLargest(errorArray)]);
 	}
 	else
 	{
-	System.out.println("Your score is "+ scoreVar);
+	gamePane.updateTextArea("Your score is "+ scoreVar);
 	}
 	}
-	
-// Method to evaluate time
-	public static Boolean evalTime(long startTimeVar, String timeLengthVar)  
-	{
-		long currentTime = System.currentTimeMillis();
-		if((currentTime-startTimeVar)>(Integer.parseInt(timeLengthVar)*1000))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-// Method to get index in int array of largest value
-	public static int getIndexOfLargest( int[] array )
-	{
-	  if ( array == null || array.length == 0 ) return -1; // null or empty
-	  int largest = 0;
-	  for ( int i = 1; i < array.length; i++ )
-	  {
-	      if ( array[i] > array[largest] ) largest = i;
-	  }
-	  return largest; // position of the first largest found
-	}
-// This will be the multi threaded class for timing and ending the quiz without latency
+// multi threaded class for timing and ending the quiz without latency
 	private class TimerOrSomething implements Runnable
 	{
 		public void run()
@@ -277,11 +282,12 @@ public class AminoAcidQuizzer extends JFrame
 		}
 		catch(InterruptedException e)
 		{
-			textArea.setText(e.getMessage());
-			e.printStackTrace()
+			ta.setText(e.getMessage());
+			e.printStackTrace();
 		}
-		slowButton.setEnabled(true);
-		cancelButton.setEnable(false);
+		updateTextArea("Your time is over");
+		timer = true;
 		}
 	}
+
 }
