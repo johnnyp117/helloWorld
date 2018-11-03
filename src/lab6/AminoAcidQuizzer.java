@@ -3,6 +3,8 @@ package lab6;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,7 +18,7 @@ import javax.swing.border.LineBorder;
  * @author John Patterson 
  * Date : 1.11.18
  * 
- * GUI to demo basic multi thread functionality
+ * GUI multi threaded amino acid quiz game. 
  * 
  */
 public class AminoAcidQuizzer extends JFrame 
@@ -62,6 +64,9 @@ public class AminoAcidQuizzer extends JFrame
         tf.setFont(new Font("Microgramma", Font.BOLD,25));
         start.setFont(new Font("Microgramma", Font.BOLD,25));
         send.addActionListener(new StringActionListener());
+//        send.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "COPY");
+//        send.getActionMap().put("COPY", send);
+        tf.addKeyListener(new StringActionListener());
         reset.addActionListener(new ResetActionListener());
         panel.add(start);
         panel.add(label); // Components Added to the JPanel, which is then set to the bottom of GUI
@@ -135,16 +140,26 @@ public class AminoAcidQuizzer extends JFrame
     	}
     }
  // method for the send button
- 	private class StringActionListener implements ActionListener
+ 	private class StringActionListener extends KeyAdapter implements ActionListener 
      {
-         @Override
- 		public void actionPerformed(ActionEvent arg0)
- 		{
-  			lastTFinput = tf.getText();
- 			updateTextArea(tf.getText()); 
- 			inputInital = true;
- 			inputGame = true;
- 		}
+		 @Override
+		public void actionPerformed(ActionEvent arg0)
+		{
+			lastTFinput = tf.getText();
+			updateTextArea(tf.getText()); 
+			inputInital = true;
+			inputGame = true;
+		}
+		public synchronized void keyPressed(KeyEvent evt) 
+		{
+		    if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
+//		    	btn_build.doClick();
+		    	lastTFinput = tf.getText();
+				updateTextArea(tf.getText()); 
+				inputInital = true;
+				inputGame = true;
+		     }
+		 }
      }
  	public void updateTextArea(String input)
  	{
@@ -153,6 +168,25 @@ public class AminoAcidQuizzer extends JFrame
      	tf.setText("");
  		validate();
  	}
+ // method for the send button
+  	private class GameActionListener implements ActionListener
+      {
+          @Override
+  		public void actionPerformed(ActionEvent arg0)
+  		{
+   			lastTFinput = tf.getText();
+  			updateGame(tf.getText()); 
+  			inputInital = true;
+  			inputGame = true;
+  		}
+      }
+  	public void updateGame(String input)
+  	{
+      	input = input + "\n";
+      	ta1.setText(ta1.getText() + input); 
+      	tf.setText("");
+  		validate();
+  	}
  // method for the reset button
  	private class ResetActionListener implements ActionListener
      {
