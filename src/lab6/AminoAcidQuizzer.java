@@ -28,6 +28,7 @@ public class AminoAcidQuizzer extends JFrame
 	private JTextField tf = new JTextField(20); 
     private JTextArea ta1 = new JTextArea();
     private JScrollPane ta = new JScrollPane(ta1);
+	private volatile JLabel label = new JLabel("Enter Command");
 //    private JLabel imageLabel = new JLabel(); // Creates area for image
     private volatile static String lastTFinput;
     private boolean inputInital;
@@ -54,7 +55,6 @@ public class AminoAcidQuizzer extends JFrame
         JMenuItem m21 = new JMenuItem("No Help For You");
         m1.add(m12);m2.add(m21);
 //Button set up
-    	JLabel label = new JLabel("Enter Command");
         JButton send = new JButton("Enter");
         JButton reset = new JButton("Reset");
         JButton  start = new JButton("Start Game");
@@ -178,6 +178,8 @@ public class AminoAcidQuizzer extends JFrame
   			updateGame(tf.getText()); 
   			inputInital = true;
   			inputGame = true;
+  			
+  			
   		}
       }
   	public void updateGame(String input)
@@ -238,7 +240,7 @@ public class AminoAcidQuizzer extends JFrame
 			gamePane.updateTextArea("30 seconds to play");
 //			timerVar = System.console().readLine();
 			timerFlag = true;
-			new Thread(gamePane.new TimerOrSomething()).start();
+			new Thread(gamePane.new Timer()).start();
 		}
 		else if ( inString.equals("survival")||inString.equals("s"))
 		{
@@ -286,13 +288,6 @@ public class AminoAcidQuizzer extends JFrame
 			gamePane.updateTextArea("You needed "+SHORT_NAMES[idx]);
 			errorArray[idx]++;
 			}
-//		if(timerFlag == true)
-//		{
-//			if(timer ==true)
-//				{
-//				gameEnd = true;
-//				}
-//		}
 		gamePane.inputGame = false;
 	}
 // End actual game loop, prints out results
@@ -309,22 +304,26 @@ public class AminoAcidQuizzer extends JFrame
 	}
 	}
 // multi threaded class for timing and ending the quiz without latency
-	private class TimerOrSomething implements Runnable
+	private class Timer implements Runnable
 	{
 		public void run()
 		{
-		try
-		{
-			Thread.sleep(30000);
-			
-		}
-		catch(InterruptedException e)
-		{
-			ta1.setText(e.getMessage());
-			e.printStackTrace();
-		}
-		updateTextArea("Your time is over");
-		timer = true;
+			for(int i=1;i<30;i=i+1)
+			{
+				try
+				{
+					label.setText( Integer.toString(30-i));
+					Thread.sleep(1000);
+				}
+				catch(InterruptedException e)
+				{
+					ta1.setText(e.getMessage());
+					e.printStackTrace();
+				}
+			}
+			updateTextArea("Your time is over");
+			timer = true;
+			validate();
 		}
 	}
 
