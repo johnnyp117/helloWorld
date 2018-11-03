@@ -24,7 +24,8 @@ public class AminoAcidQuizzer extends JFrame
 	private static final long serialVersionUID = 1L;
 	private JPanel panel = new JPanel(); 
 	private JTextField tf = new JTextField(20); 
-    private JTextArea ta = new JTextArea();
+    private JTextArea ta1 = new JTextArea();
+    private JScrollPane ta = new JScrollPane(ta1);
 //    private JLabel imageLabel = new JLabel(); // Creates area for image
     private volatile static String lastTFinput;
     private boolean inputInital;
@@ -42,7 +43,8 @@ public class AminoAcidQuizzer extends JFrame
         JMenu m2 = new JMenu("Help");
         m1.setFont(new Font("Microgramma", Font.BOLD,25)); 
         m2.setFont(new Font("Microgramma", Font.BOLD,25));
-        ta.setFont(new Font("Microgramma", Font.BOLD,25));
+        ta1
+        .setFont(new Font("Microgramma", Font.BOLD,25));
         mb.add(m1); mb.add(m2);
         JMenuItem m12 = new JMenuItem("Save as");
         m12.addActionListener(new saveToFile());
@@ -53,15 +55,19 @@ public class AminoAcidQuizzer extends JFrame
     	JLabel label = new JLabel("Enter Command");
         JButton send = new JButton("Enter");
         JButton reset = new JButton("Reset");
+        JButton  start = new JButton("Start Game");
         label.setFont(new Font("Microgramma", Font.BOLD,25));
         send.setFont(new Font("Microgramma", Font.BOLD,25));
         reset.setFont(new Font("Microgramma", Font.BOLD,25));
         tf.setFont(new Font("Microgramma", Font.BOLD,25));
+        start.setFont(new Font("Microgramma", Font.BOLD,25));
         send.addActionListener(new StringActionListener());
         reset.addActionListener(new ResetActionListener());
+        panel.add(start);
         panel.add(label); // Components Added to the JPanel, which is then set to the bottom of GUI
         panel.add(tf);
         panel.add(send);
+//        panel.getRootPane().setDefaultButton(send);
         panel.add(reset);
         panel.setBorder(new LineBorder(Color.BLUE, 4));
 //// add the image , this could be actually super cool to add AA pic.....
@@ -79,8 +85,8 @@ public class AminoAcidQuizzer extends JFrame
         setVisible(true);
 //Settings for pretty
         panel.setBackground(Color.BLACK);
-        ta.setBackground(Color.BLACK);
-        ta.setForeground(Color.green);
+        ta1.setBackground(Color.BLACK);
+        ta1.setForeground(Color.green);
         label.setForeground(Color.green);  
         panel.setForeground(Color.green);
         try
@@ -119,7 +125,7 @@ public class AminoAcidQuizzer extends JFrame
     	try
     	{
     		BufferedWriter writer = new BufferedWriter(new FileWriter(chosenFile));
-    		writer.write(ta.getText());
+    		writer.write(ta1.getText());
     		writer.close();
     	}
     	catch(Exception ex)
@@ -143,7 +149,7 @@ public class AminoAcidQuizzer extends JFrame
  	public void updateTextArea(String input)
  	{
      	input = input + "\n";
-     	ta.setText(ta.getText() + input); 
+     	ta1.setText(ta1.getText() + input); 
      	tf.setText("");
  		validate();
  	}
@@ -153,7 +159,7 @@ public class AminoAcidQuizzer extends JFrame
          @Override
  		public void actionPerformed(ActionEvent arg0)
  		{
-         	ta.setText(""); 
+         	ta1.setText(""); 
  		}
      }
  // Method to get index in int array of largest value
@@ -170,9 +176,7 @@ public class AminoAcidQuizzer extends JFrame
     public static void main(String[] args) throws Exception
 	{	 
 // Variables for game
-    // From the gui teleporter:  new TeleporterGUI("station1");	
     AminoAcidQuizzer gamePane = new AminoAcidQuizzer("Quiz");
-    
 	boolean timer, gameEnd, timerFlag, surviveFlag; 
 	timer = gameEnd = timerFlag = surviveFlag = false;
 	int scoreVar, questVar;
@@ -282,7 +286,7 @@ public class AminoAcidQuizzer extends JFrame
 		}
 		catch(InterruptedException e)
 		{
-			ta.setText(e.getMessage());
+			ta1.setText(e.getMessage());
 			e.printStackTrace();
 		}
 		updateTextArea("Your time is over");
