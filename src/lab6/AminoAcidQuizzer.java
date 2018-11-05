@@ -28,6 +28,7 @@ public class AminoAcidQuizzer extends JFrame
 	private JTextField tf = new JTextField(20); 
     private volatile JTextArea ta1 = new JTextArea();
     private JScrollPane ta = new JScrollPane(ta1);
+    private JScrollBar sb = ta.getVerticalScrollBar();
 	private volatile JLabel label = new JLabel("Enter Command");
 //    private JLabel imageLabel = new JLabel(); // Creates area for image
     private volatile static String lastTFinput;
@@ -76,13 +77,11 @@ public class AminoAcidQuizzer extends JFrame
         send.addActionListener(new StringActionListener());
         tf.addKeyListener(new StringActionListener());
         reset.addActionListener(new ResetActionListener());
-//        start.addActionListener(new Thread(new GameActionListener()).start());
         start.addActionListener(new GameActionListener());
         panel.add(start);
         panel.add(label); // Components Added to the JPanel, which is then set to the bottom of GUI
         panel.add(tf);
         panel.add(send);
-//        panel.getRootPane().setDefaultButton(send);
         panel.add(reset);
         panel.setBorder(new LineBorder(Color.BLUE, 4));
 //// add the image , this could be actually super cool to add AA pic.....
@@ -118,11 +117,9 @@ public class AminoAcidQuizzer extends JFrame
     {
     	@Override
     	public void actionPerformed(ActionEvent arg0)
-    	{
-    		saveToFile();
-    	}
+    	{saveToFile();}
     }
-// not entirely sure if it's safe to give helper method and class same name, but was easy
+// helper method for saveToFile
     public void saveToFile()
     {
     	JFileChooser jfc = new JFileChooser();
@@ -152,7 +149,7 @@ public class AminoAcidQuizzer extends JFrame
  // method for the send button
  	private class StringActionListener extends KeyAdapter implements ActionListener 
      {
-		 @Override
+		@Override
 		public void actionPerformed(ActionEvent arg0)
 		{
 			lastTFinput = tf.getText();
@@ -162,8 +159,8 @@ public class AminoAcidQuizzer extends JFrame
 		}
 		public synchronized void keyPressed(KeyEvent evt) 
 		{
-		    if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
-//		    	btn_build.doClick();
+		    if (evt.getKeyChar() == KeyEvent.VK_ENTER) 
+		    {
 		    	lastTFinput = tf.getText();
 				updateTextArea(tf.getText()); 
 				inputInital = true;
@@ -177,31 +174,25 @@ public class AminoAcidQuizzer extends JFrame
      	ta1.setText(ta1.getText() + input); 
      	tf.setText("");
  		validate();
-// 		notifyAll();
  	}
- // method for the send button
-//  	private class GameActionListener implements ActionListener, Runnable
+ // method for the start game button
  	private class GameActionListener implements ActionListener
 	{
         @Override
   		public void actionPerformed(ActionEvent arg0)
   		{
         	new Thread(new runGame()).start();
-    			
-//		lastTFinput = tf.getText();
-//		updateGame(tf.getText()); 
-//		inputInital = true;
-//		inputGame = true;			
+        	inputInital = false;timer = false;inputGame = false;
+        	surviveFlag=false;gameEnd=false;timerFlag = false;
   		}
-      }
+    }
+ // multi threaded class for the actual game play
  	private class runGame implements Runnable 
 	{
 		public void run() 
 		{
 		inputInital = false;
 		updateTextArea("You know why you're here. Do you want to play (t)imed or (s)urvival?");
-		//System.out.println("You know why you're here. Do you want to play (t)imed or (s)urvival?");
-		System.out.println(inputInital);
 		while(inputInital == false)
 		{try {Thread.sleep(1000);}catch(InterruptedException e) {}}
 		System.out.println(inputInital);
@@ -230,7 +221,10 @@ public class AminoAcidQuizzer extends JFrame
 			{
 				questVar = questVar+1;
 				int idx = new Random().nextInt(FULL_NAMES.length);
-				updateTextArea("What is the 1 letter abbreviation for "+ FULL_NAMES[idx]);
+				updateTextArea("What is the 1 letter abbreviation for "+ FULL_NAMES[idx]+"\n");
+//				ta1.revalidate();
+//				ta1.repaint();
+				sb.setValue( sb.getMaximum() );
 				while(inputGame == false) 
 				{try {Thread.sleep(100);}catch(InterruptedException e) {}}
 	//				String ansString = System.console().readLine().toUpperCase();
@@ -254,9 +248,7 @@ public class AminoAcidQuizzer extends JFrame
 					{
 					System.out.println(timer);
 					gameEnd = timer;
-					}
-					else
-					{
+					validate();
 					updateTextArea("You needed "+SHORT_NAMES[idx]);
 					errorArray[idx]++;
 					}
@@ -282,9 +274,7 @@ public class AminoAcidQuizzer extends JFrame
      {
          @Override
  		public void actionPerformed(ActionEvent arg0)
- 		{
-         	ta1.setText(""); 
- 		}
+ 		{ta1.setText("");}
      }
  // Method to get index in int array of largest value
  	public static int getIndexOfLargest( int[] array ) 
