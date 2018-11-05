@@ -181,6 +181,7 @@ public class AminoAcidQuizzer extends JFrame
         @Override
   		public void actionPerformed(ActionEvent arg0)
   		{
+        	//set button to not visible?
         	new Thread(new runGame()).start();
         	inputInital = false;timer = false;inputGame = false;
         	surviveFlag=false;gameEnd=false;timerFlag = false;
@@ -195,12 +196,11 @@ public class AminoAcidQuizzer extends JFrame
 		updateTextArea("You know why you're here. Do you want to play (t)imed or (s)urvival?");
 		while(inputInital == false)
 		{try {Thread.sleep(1000);}catch(InterruptedException e) {}}
-		System.out.println(inputInital);
+//		System.out.println(inputInital);
 		String inString = lastTFinput;
 			if( inString.equals("timed")||inString.equals("t"))
 			{
 				updateTextArea("30 seconds to play");
-	//				timerVar = System.console().readLine();
 				timerFlag = true;
 				new Thread(new Timer()).start();
 			}
@@ -214,20 +214,16 @@ public class AminoAcidQuizzer extends JFrame
 				updateTextArea("Well looks like you didn't choose, so survival it is :D");
 				surviveFlag = true;
 			}
-			  
-			// Start the actual game loop with flag controls for versions	
+			// Start the actual game loop with bool flag controls for versions	
 			inputGame = false;
 			while(gameEnd == false)
 			{
 				questVar = questVar+1;
 				int idx = new Random().nextInt(FULL_NAMES.length);
 				updateTextArea("What is the 1 letter abbreviation for "+ FULL_NAMES[idx]+"\n");
-//				ta1.revalidate();
-//				ta1.repaint();
 				sb.setValue( sb.getMaximum() );
 				while(inputGame == false) 
 				{try {Thread.sleep(100);}catch(InterruptedException e) {}}
-	//				String ansString = System.console().readLine().toUpperCase();
 				String ansString = lastTFinput.toUpperCase();
 				System.out.println(ansString);
 					if( ansString.equals(SHORT_NAMES[idx]))
@@ -276,7 +272,7 @@ public class AminoAcidQuizzer extends JFrame
  		public void actionPerformed(ActionEvent arg0)
  		{ta1.setText("");}
      }
- // Method to get index in int array of largest value
+ // get index in int array of largest value
  	public static int getIndexOfLargest( int[] array ) 
  	{
  	  if ( array == null || array.length == 0 ) return -1; // null or empty
