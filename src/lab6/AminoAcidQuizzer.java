@@ -26,12 +26,12 @@ public class AminoAcidQuizzer extends JFrame
 	private static final long serialVersionUID = 1L;
 	private JPanel panel = new JPanel(); 
 	private JTextField tf = new JTextField(20); 
-    private JTextArea ta1 = new JTextArea();
+    private volatile JTextArea ta1 = new JTextArea();
     private JScrollPane ta = new JScrollPane(ta1);
 	private volatile JLabel label = new JLabel("Enter Command");
 //    private JLabel imageLabel = new JLabel(); // Creates area for image
     private volatile static String lastTFinput;
-    private boolean inputInital;
+    private volatile boolean inputInital;
     private volatile boolean timer = false;
     private volatile boolean inputGame = false;
  // Variables for game
@@ -57,8 +57,7 @@ public class AminoAcidQuizzer extends JFrame
         JMenu m2 = new JMenu("Help");
         m1.setFont(new Font("Microgramma", Font.BOLD,25)); 
         m2.setFont(new Font("Microgramma", Font.BOLD,25));
-        ta1
-        .setFont(new Font("Microgramma", Font.BOLD,25));
+        ta1.setFont(new Font("Microgramma", Font.BOLD,25));
         mb.add(m1); mb.add(m2);
         JMenuItem m12 = new JMenuItem("Save as");
         m12.addActionListener(new saveToFile());
@@ -77,6 +76,7 @@ public class AminoAcidQuizzer extends JFrame
         send.addActionListener(new StringActionListener());
         tf.addKeyListener(new StringActionListener());
         reset.addActionListener(new ResetActionListener());
+//        start.addActionListener(new Thread(new GameActionListener()).start());
         start.addActionListener(new GameActionListener());
         panel.add(start);
         panel.add(label); // Components Added to the JPanel, which is then set to the bottom of GUI
@@ -177,88 +177,16 @@ public class AminoAcidQuizzer extends JFrame
      	ta1.setText(ta1.getText() + input); 
      	tf.setText("");
  		validate();
+// 		notifyAll();
  	}
  // method for the send button
-  	private class GameActionListener implements ActionListener
-      {
-          @Override
+//  	private class GameActionListener implements ActionListener, Runnable
+ 	private class GameActionListener implements ActionListener
+	{
+        @Override
   		public void actionPerformed(ActionEvent arg0)
   		{
-        	updateTextArea("You know why you're here. Do you want to play (t)imed or (s)urvival?");
-    		//System.out.println("You know why you're here. Do you want to play (t)imed or (s)urvival?");
-    		System.out.println(inputInital);
-    		while(inputInital == false)
-    		{try {Thread.sleep(100);}catch(InterruptedException e) {}}
-    		System.out.println(inputInital);
-    		String inString = lastTFinput;
-    			if( inString.equals("timed")||inString.equals("t"))
-    			{
-    				updateTextArea("30 seconds to play");
-//        				timerVar = System.console().readLine();
-    				timerFlag = true;
-    				new Thread(new Timer()).start();
-    			}
-    			else if ( inString.equals("survival")||inString.equals("s"))
-    			{
-    				updateTextArea("Get ready");
-    				surviveFlag = true;
-    			}
-    			else
-    			{
-    				updateTextArea("Well looks like you didn't choose, so survival it is :D");
-    				surviveFlag = true;
-    			}
-    			  
-    			// Start the actual game loop with flag controls for versions	
-    				inputGame = false;
-    				while(gameEnd == false)
-    				{
-    					questVar = questVar+1;
-    					int idx = new Random().nextInt(FULL_NAMES.length);
-    					updateTextArea("What is the 1 letter abbreviation for "+ FULL_NAMES[idx]);
-    					while(inputGame == false)
-    					{try {Thread.sleep(100);}catch(InterruptedException e) {}}
-//    					String ansString = System.console().readLine().toUpperCase();
-    					String ansString = lastTFinput.toUpperCase();
-    					System.out.println(ansString);
-    						if( ansString.equals(SHORT_NAMES[idx]))
-    						{
-    						updateTextArea("Ok, "+ ansString +" was correct. Next...");
-    						scoreVar++;
-    						}
-    						else if(surviveFlag == true)
-    						{
-    						updateTextArea(ansString+" was wrong :p. You needed "+SHORT_NAMES[idx]);
-    						gameEnd = true;
-    						}
-    						else if(ansString.equals("quit")||ansString.equals("i yield"))
-    						{
-    						break;
-    						}
-    						else if(timerFlag == true)
-    						{
-    						System.out.println(timer);
-    						gameEnd = timer;
-    						}
-    						else
-    						{
-    						updateTextArea("You needed "+SHORT_NAMES[idx]);
-    						errorArray[idx]++;
-    						}
-    					inputGame = false;
-    				}
-    			// End actual game loop, prints out results
-    				updateTextArea("Game over");
-    				if(timerFlag == true)
-    				{
-    				updateTextArea("30 seconds is up knave!");
-    				updateTextArea("Your score is "+ scoreVar +" out of possible "+ questVar);
-    				updateTextArea("Your worst residue was "+ FULL_NAMES[getIndexOfLargest(errorArray)]);
-    				}
-    				else
-    				{
-    				updateTextArea("Your score is "+ scoreVar);
-    				}
+        	new Thread(new runGame()).start();
     			
 //		lastTFinput = tf.getText();
 //		updateGame(tf.getText()); 
@@ -266,13 +194,89 @@ public class AminoAcidQuizzer extends JFrame
 //		inputGame = true;			
   		}
       }
-//  	public void updateGame(String input)
-//  	{
-//      	input = input + "\n";
-//      	ta1.setText(ta1.getText() + input); 
-//      	tf.setText("");
-//  		validate();
-//  	}
+ 	private class runGame implements Runnable 
+	{
+		public void run() 
+		{
+		inputInital = false;
+		updateTextArea("You know why you're here. Do you want to play (t)imed or (s)urvival?");
+		//System.out.println("You know why you're here. Do you want to play (t)imed or (s)urvival?");
+		System.out.println(inputInital);
+		while(inputInital == false)
+		{try {Thread.sleep(1000);}catch(InterruptedException e) {}}
+		System.out.println(inputInital);
+		String inString = lastTFinput;
+			if( inString.equals("timed")||inString.equals("t"))
+			{
+				updateTextArea("30 seconds to play");
+	//				timerVar = System.console().readLine();
+				timerFlag = true;
+				new Thread(new Timer()).start();
+			}
+			else if ( inString.equals("survival")||inString.equals("s"))
+			{
+				updateTextArea("Get ready");
+				surviveFlag = true;
+			}
+			else
+			{
+				updateTextArea("Well looks like you didn't choose, so survival it is :D");
+				surviveFlag = true;
+			}
+			  
+			// Start the actual game loop with flag controls for versions	
+			inputGame = false;
+			while(gameEnd == false)
+			{
+				questVar = questVar+1;
+				int idx = new Random().nextInt(FULL_NAMES.length);
+				updateTextArea("What is the 1 letter abbreviation for "+ FULL_NAMES[idx]);
+				while(inputGame == false) 
+				{try {Thread.sleep(100);}catch(InterruptedException e) {}}
+	//				String ansString = System.console().readLine().toUpperCase();
+				String ansString = lastTFinput.toUpperCase();
+				System.out.println(ansString);
+					if( ansString.equals(SHORT_NAMES[idx]))
+					{
+					updateTextArea("Ok, "+ ansString +" was correct. Next...");
+					scoreVar++;
+					}
+					else if(surviveFlag == true)
+					{
+					updateTextArea(ansString+" was wrong :p. You needed "+SHORT_NAMES[idx]);
+					gameEnd = true;
+					}
+					else if(ansString.equals("quit")||ansString.equals("i yield"))
+					{
+					break;
+					}
+					else if(timerFlag == true)
+					{
+					System.out.println(timer);
+					gameEnd = timer;
+					}
+					else
+					{
+					updateTextArea("You needed "+SHORT_NAMES[idx]);
+					errorArray[idx]++;
+					}
+			inputGame = false;
+			}
+		// End actual game loop, prints out results
+			updateTextArea("Game over");
+			if(timerFlag == true)
+			{
+			updateTextArea("30 seconds is up knave!");
+			updateTextArea("Your score is "+ scoreVar +" out of possible "+ questVar);
+			updateTextArea("Your worst residue was "+ FULL_NAMES[getIndexOfLargest(errorArray)]);
+			}
+			else
+			{
+			updateTextArea("Your score is "+ scoreVar);
+			}
+			validate();
+		}
+	}
  // method for the reset button
  	private class ResetActionListener implements ActionListener
      {
@@ -283,7 +287,7 @@ public class AminoAcidQuizzer extends JFrame
  		}
      }
  // Method to get index in int array of largest value
- 	public static int getIndexOfLargest( int[] array )
+ 	public static int getIndexOfLargest( int[] array ) 
  	{
  	  if ( array == null || array.length == 0 ) return -1; // null or empty
  	  int largest = 0;
@@ -293,16 +297,10 @@ public class AminoAcidQuizzer extends JFrame
  	  }
  	  return largest; // position of the first largest found
  	}
- // Opening of game
-    public static void main(String[] args) throws Exception
-	{	 
-//    AminoAcidQuizzer gamePane = 
-	new AminoAcidQuizzer("Quiz");
-	}
 // multi threaded class for timing and ending the quiz without latency
-	private class Timer implements Runnable
+	private class Timer implements Runnable 
 	{
-		public void run()
+		public void run() 
 		{
 			for(int i=1;i<30;i=i+1)
 			{
@@ -322,5 +320,7 @@ public class AminoAcidQuizzer extends JFrame
 			validate();
 		}
 	}
-
+	 // Opening of game
+    public static void main(String[] args) throws Exception
+	{new AminoAcidQuizzer("Quiz");}
 }
