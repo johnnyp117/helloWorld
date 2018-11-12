@@ -16,9 +16,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 // i7 6600U, 4 logical processors
-// for 10,000, single thread = 0.024 sec
-// for 100,000 single thread = 1.265 sec
-
+// for 10,000 = 0.024 sec AF: 0.022 sec JP
+// for 100,000 = 1.265 sec Af: 0.772 sec JP
+// for 1,000,000 = ? sec AF: 55.41 sec JP
 public class PrimeNumGen extends JFrame
 {
 	
@@ -92,28 +92,6 @@ public class PrimeNumGen extends JFrame
 					}
 				}});
 		}
-//	private class isPrime implements Runnable
-//	{
-//		private final int intOfInterest;
-//		private boolean isItPrime;
-//		private isPrime(int i)
-//		{
-//			this.intOfInterest = i;
-//		}
-//		public void run()
-//		{
-//		System.out.println("running isPrime" + this.intOfInterest);
-//		for( int x=2; x < intOfInterest -1; x++)
-//			if( intOfInterest % x == 0  )
-//				isItPrime= false;
-//		
-//		isItPrime= true;
-//		}
-//		public boolean getResult()
-//		{
-//			return this.isItPrime;
-//		}
-//	}
 	private boolean isPrime( int i)
 	{
 		for( int x=2; x < i -1; x++)
@@ -154,7 +132,7 @@ public class PrimeNumGen extends JFrame
 				{
 					try {semaphore.tryAcquire(1, TimeUnit.MILLISECONDS);} 
 					catch (InterruptedException e) {e.printStackTrace();}
-					numIterator currentBin = new numIterator((gradient*i), (gradient*(i+1))-1);
+					numIterator currentBin = new numIterator((gradient*i), (gradient*(i+1))-1, semaphore);
 					new Thread(currentBin).start();
 				}
 			}
@@ -202,7 +180,6 @@ public class PrimeNumGen extends JFrame
 		private final int startNum;
 		private final long startTime;
 		private final Semaphore semaphore;
-//		private Semaphore semaphore = new Semaphore(NUMCORES);
 		private numIterator(int num1, int num2, Semaphore currentThread)
 		{
 			this.endNum = num2;
@@ -213,14 +190,9 @@ public class PrimeNumGen extends JFrame
 		public void run()
 		{
 			System.out.println(this.startNum+" Bin has started");
-//			try {semaphore.tryAcquire(1, TimeUnit.MILLISECONDS);} 
-//			catch (InterruptedException e) {e.printStackTrace();}
 			long lastUpdate = System.currentTimeMillis();
 			for (int i = startNum; i < endNum && ! cancel; i++) 
 			{
-//				isPrime currentNum = new isPrime(i);
-//				new Thread(currentNum).start();
-//				if(currentNum.getResult() )
 				if(isPrime(i))
 				{
 					list.add(i);
@@ -246,6 +218,6 @@ public class PrimeNumGen extends JFrame
 			}
 			semaphore.release();
 			System.out.println(this.startNum+" Bin has finished");
-		}
-	}
+		}// end run
+	}//end numIterator
 }
