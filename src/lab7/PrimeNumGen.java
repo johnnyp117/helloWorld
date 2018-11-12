@@ -17,8 +17,8 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 // i7 6600U, 4 logical processors
 // for 10,000 = 0.024 sec AF: 0.022 sec JP
-// for 100,000 = 1.265 sec Af: 0.772 sec JP
-// for 1,000,000 = ? sec AF: 55.41 sec JP
+// for 100,000 = 1.265 sec Af: 0.746 sec JP
+// for 1,000,000 = 108.084 sec AF: 55.41 sec JP
 public class PrimeNumGen extends JFrame
 {
 	
@@ -152,6 +152,7 @@ public class PrimeNumGen extends JFrame
 			final StringBuffer buff = new StringBuffer();
 			synchronized(list)
 			{
+			list.sort(null);
 			for( Integer i2 : list)
 				buff.append(i2 + "\n");
 			
