@@ -14,7 +14,7 @@ import javax.swing.SwingUtilities;
 
 public class PrimeNumGenRef extends JFrame
 {
-	
+	private static final long serialVersionUID = 1L;
 	private final JTextArea aTextField = new JTextArea();
 	private final JButton primeButton = new JButton("Start");
 	private final JButton cancelButton = new JButton("Cancel");
