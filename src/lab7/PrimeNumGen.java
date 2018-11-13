@@ -16,31 +16,37 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 // i7 6600U, 4 logical processors
-// for 10,000 = 0.024 sec AF: 0.022 sec JP
-// for 100,000 = 1.265 sec Af: 0.746 sec JP
-// for 1,000,000 = 108.084 sec AF: 55.41 sec JP
+// for 10,000 = 0.024 sec AF: 0.022 sec JP>0.035 sec w/8 threads
+// for 100,000 = 1.265 sec Af: 0.746 sec JP>0.641 sec w/8 threads
+// for 1,000,000 = 108.084 sec AF: 55.41 sec JP>48.176 sec w/8 thread & lag
+// w/ even block loading [(i+NUMCORES)<max] using my multi threading
+// for 10,000 = ~0.022 sec w/4 cores/== ~0.023 sec w/8 cores
+// for 100,000 = ~0.832 sec w/4 cores/< ~0.613 sec w/8 cores
+// for 1,000,000 = ~63.677 sec w/4 cores/< ~45.565 sec w/8 cores & no lag
+
+// this is probably due to the nature of this problem, not efficency of the threads.
+// if I throw 8 up, 1/2 run and finish stupid fast, cuz they're evens.
+// that leaves 4 threads, ish, running over the odd numbers that could be primes.
+
 public class PrimeNumGen extends JFrame
 {
-	
 	private static final long serialVersionUID = 1L;
 	private final JTextArea aTextField = new JTextArea();
 	private final JButton primeButton = new JButton("Start");
 	private final JButton cancelButton = new JButton("Cancel");
 	private volatile boolean cancel = false;
 	private final PrimeNumGen thisFrame;
-	private static final int NUMCORES = Runtime.getRuntime().availableProcessors();
-//	private final Semaphore semaphore = new Semaphore(NUMCORES);
+//	private static final int NUMCORES = Runtime.getRuntime().availableProcessors();
+	private static final int NUMCORES = 8;
 	private List<Integer> list = Collections.synchronizedList(new ArrayList<Integer>());
 
 	public static void main(String[] args)
 	{
 		System.out.println("Your number of cores is "+ NUMCORES);
 		PrimeNumGen png = new PrimeNumGen("Primer Number Generator");
-		// don't add the action listener from the constructor
 		png.addActionListeners();
 		png.setVisible(true);
 	}
-	
 	private PrimeNumGen(String title)
 	{
 		super(title);
@@ -72,17 +78,14 @@ public class PrimeNumGen extends JFrame
 				{	
 					String num = JOptionPane.showInputDialog("Enter a large integer");
 					Integer max =null;
-					try
-					{
-						max = Integer.parseInt(num);
-					}
+					try{max = Integer.parseInt(num);}
 					catch(Exception ex)
 					{
 						JOptionPane.showMessageDialog(
 								thisFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 						ex.printStackTrace();
 					}
-					if( max != null)
+					if( max != null && max != 0)
 					{
 						aTextField.setText("");
 						primeButton.setEnabled(false);
@@ -91,7 +94,7 @@ public class PrimeNumGen extends JFrame
 						new Thread(new UserInput(max)).start();
 					}
 				}});
-		}
+	}
 	private boolean isPrime( int i)
 	{
 		for( int x=2; x < i -1; x++)
@@ -112,37 +115,47 @@ public class PrimeNumGen extends JFrame
 		}
 		public void run()
 		{
+			// even case
 			if(max%NUMCORES == 0)
 			{
 				System.out.println("Check 1 even");
-				int gradient = max/NUMCORES;
-				for (int i = 0; i < NUMCORES; i++) 
+				// old method for breaking up the list
+//				int gradient = max/NUMCORES;
+				for (int i = 1; i <= NUMCORES; i++) //changed i=0 to 1
 				{
 					try {semaphore.tryAcquire(1, TimeUnit.MILLISECONDS);} 
 					catch (InterruptedException e) {e.printStackTrace();}
-					numIterator currentBin = new numIterator((gradient*i), (gradient*(i+1))-1, semaphore);
+					// Old obj creation using simple blocks
+//					numIterator currentBin = new numIterator((gradient*i), (gradient*(i+1))-1, semaphore);
+					numIterator currentBin = new numIterator(i,max,semaphore);
 					new Thread(currentBin).start();
 				}
 			}
+			// odd case
 			else if(max%(NUMCORES+1) == 0)
 			{
 				System.out.println("Check 1 odd");
-				int gradient = max/(NUMCORES+1);
-				for (int i = 0; i < (NUMCORES+1); i++) 
+				// old method for breaking up the list
+//				int gradient = max/(NUMCORES+1);
+				// this may be buggy, have never checked
+				for (int i = 1; i <= (NUMCORES+1); i++) 
 				{
 					try {semaphore.tryAcquire(1, TimeUnit.MILLISECONDS);} 
 					catch (InterruptedException e) {e.printStackTrace();}
-					numIterator currentBin = new numIterator((gradient*i), (gradient*(i+1))-1, semaphore);
+					// Old obj creation using simple blocks
+//					numIterator currentBin = new numIterator((gradient*i), (gradient*(i+1))-1, semaphore);
+					numIterator currentBin = new numIterator(i,max,semaphore);
 					new Thread(currentBin).start();
 				}
 			}
-			else
+			else // unsure when this would be thrown or if it would stop method
 			{
 				System.out.println("Your number is stupid, input a new one");
 				return;
 			}
-//			the stuff in numIterator run() went here.
+//			the stuff in 'numIterator run()' went here in original code.
 			int numAcquired = 0;
+			// wait until all threads done.
 			while(numAcquired < NUMCORES)
 			{
 				try{semaphore.acquire();} 
@@ -171,6 +184,7 @@ public class PrimeNumGen extends JFrame
 					primeButton.setEnabled(true);
 					cancelButton.setEnabled(false);
 					aTextField.setText( (cancel ? "cancelled " : "") +  buff.toString());
+					list.clear();
 				}
 			});			
 		}// end run
@@ -192,7 +206,8 @@ public class PrimeNumGen extends JFrame
 		{
 			System.out.println(this.startNum+" Bin has started");
 			long lastUpdate = System.currentTimeMillis();
-			for (int i = startNum; i < endNum && ! cancel; i++) 
+//			for (int i = startNum; i < endNum && ! cancel; i++) //original loop for simple block bins
+			for (int i = startNum; i < endNum && ! cancel; i=i+NUMCORES) 
 			{
 				if(isPrime(i))
 				{
@@ -212,12 +227,11 @@ public class PrimeNumGen extends JFrame
 								aTextField.setText(outString);
 							}
 						});
-						
 						lastUpdate = System.currentTimeMillis();	
 					}
 				}
 			}
-			semaphore.release();
+			this.semaphore.release();
 			System.out.println(this.startNum+" Bin has finished");
 		}// end run
 	}//end numIterator
