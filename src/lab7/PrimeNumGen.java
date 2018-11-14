@@ -16,10 +16,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 // i7 6600U, 4 logical processors
+//* simple block loading on threads
 // for 10,000 = 0.024 sec AF: 0.022 sec JP>0.035 sec w/8 threads
 // for 100,000 = 1.265 sec Af: 0.746 sec JP>0.641 sec w/8 threads
 // for 1,000,000 = 108.084 sec AF: 55.41 sec JP>48.176 sec w/8 thread & lag
-// w/ even block loading [(i+NUMCORES)<max] using my multi threading
+//* w/ even block loading [(i+NUMCORES)<max] using my multi threading
 // for 10,000 = ~0.022 sec w/4 cores/== ~0.023 sec w/8 cores
 // for 100,000 = ~0.832 sec w/4 cores/< ~0.613 sec w/8 cores
 // for 1,000,000 = ~63.677 sec w/4 cores/< ~45.565 sec w/8 cores & no lag
@@ -115,43 +116,17 @@ public class PrimeNumGen extends JFrame
 		}
 		public void run()
 		{
-			// even case
-			if(max%NUMCORES == 0)
-			{
-				System.out.println("Check 1 even");
-				// old method for breaking up the list
+			System.out.println("Check 1 even");
+			// old method for breaking up the list
 //				int gradient = max/NUMCORES;
-				for (int i = 1; i <= NUMCORES; i++) //changed i=0 to 1
-				{
-					try {semaphore.tryAcquire(1, TimeUnit.MILLISECONDS);} 
-					catch (InterruptedException e) {e.printStackTrace();}
-					// Old obj creation using simple blocks
-//					numIterator currentBin = new numIterator((gradient*i), (gradient*(i+1))-1, semaphore);
-					numIterator currentBin = new numIterator(i,max,semaphore);
-					new Thread(currentBin).start();
-				}
-			}
-			// odd case
-			else if(max%(NUMCORES+1) == 0)
+			for (int i = 1; i <= NUMCORES; i++) //changed i=0 to 1
 			{
-				System.out.println("Check 1 odd");
-				// old method for breaking up the list
-//				int gradient = max/(NUMCORES+1);
-				// this may be buggy, have never checked
-				for (int i = 1; i <= (NUMCORES+1); i++) 
-				{
-					try {semaphore.tryAcquire(1, TimeUnit.MILLISECONDS);} 
-					catch (InterruptedException e) {e.printStackTrace();}
-					// Old obj creation using simple blocks
+				try {semaphore.tryAcquire(1, TimeUnit.MILLISECONDS);} 
+				catch (InterruptedException e) {e.printStackTrace();}
+				// Old obj creation using simple blocks
 //					numIterator currentBin = new numIterator((gradient*i), (gradient*(i+1))-1, semaphore);
-					numIterator currentBin = new numIterator(i,max,semaphore);
-					new Thread(currentBin).start();
-				}
-			}
-			else // unsure when this would be thrown or if it would stop method
-			{
-				System.out.println("Your number is stupid, input a new one");
-				return;
+				numIterator currentBin = new numIterator(i,max,semaphore);
+				new Thread(currentBin).start();
 			}
 //			the stuff in 'numIterator run()' went here in original code.
 			int numAcquired = 0;
