@@ -16,14 +16,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 // i7 6600U, 4 logical processors
-//* simple block loading on threads
-// for 10,000 = 0.024 sec AF: 0.022 sec JP>0.035 sec w/8 threads
-// for 100,000 = 1.265 sec Af: 0.746 sec JP>0.641 sec w/8 threads
-// for 1,000,000 = 108.084 sec AF: 55.41 sec JP>48.176 sec w/8 thread & lag
-//* w/ even block loading [(i+NUMCORES)<max] using my multi threading
-// for 10,000 = ~0.022 sec w/4 cores/== ~0.023 sec w/8 cores
-// for 100,000 = ~0.832 sec w/4 cores/< ~0.613 sec w/8 cores
-// for 1,000,000 = ~63.677 sec w/4 cores/< ~45.565 sec w/8 cores & no lag
+//* original benchmarks ------------------------------------------------------
+//for 10,000 = 0.024 sec AF
+//for 100,000 = 1.265 sec Af
+//for 1,000,000 = 108.084 sec AF
+//* simple block loading on threads -------------------------------------------
+// for 10,000 = 0.022 sec w/4 threads /> 0.035 sec w/8 threads
+// for 100,000 = 0.746 sec w/4 threads /< 0.641 sec w/8 threads
+// for 1,000,000 = 55.41 sec w/4 threads /< 48.176 sec w/8 threads & lag
+//* w/ even block loading [(i+NUMCORES)<max] using my multi threading ---------
+// for 10,000 = ~0.022 sec w/4 threads /== ~0.023 sec w/8 threads
+// for 100,000 = ~0.832 sec w/4 threads /< ~0.613 sec w/8 threads
+// for 1,000,000 = ~63.677 sec w/4 threads /< ~45.565 sec w/8 threads & no lag
 
 // this is probably due to the nature of this problem, not efficency of the threads.
 // if I throw 8 up, 1/2 run and finish stupid fast, cuz they're evens.
